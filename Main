@@ -1,0 +1,287 @@
+// src/App.jsx
+import { useState, createContext, useContext } from "react";
+import Home from "./components/Home";
+import Documents from "./components/Documents";
+import AIScreen from "./components/AIScreen";
+import Profile from "./components/Profile";
+import TaskDetail from "./components/TaskDetail";
+import "./App.css";
+
+const LangCtx = createContext("en");
+export const useLang = () => useContext(LangCtx);
+
+const TABS = (t) => [
+  { id: "home", icon: "🏠", label: t.navHome },
+  { id: "docs", icon: "📁", label: t.navDocs },
+  { id: "ai", icon: "✦", label: t.navAI },
+  { id: "profile", icon: "👤", label: t.navProfile },
+];
+
+export default function LifeAdmin() {
+  const [lang, setLang] = useState("en");
+  const [tab, setTab] = useState("home");
+  const [activeTask, setActiveTask] = useState(null);
+
+  const t = T[lang];
+
+  return (
+    <LangCtx.Provider value={lang}>
+      <div className="phone-shell">
+        <div className="status-bar">
+          <span>9:41</span>
+          <div className="status-controls">
+            <div className="lang-toggle">
+              <button 
+                className={`lang-btn ${lang === "en" ? "active" : ""}`} 
+                onClick={() => {setLang("en"); setActiveTask(null);}}
+                aria-label="Switch to English"
+              >
+                EN
+              </button>
+              <button 
+                className={`lang-btn ${lang === "hi" ? "active" : ""}`} 
+                onClick={() => {setLang("hi"); setActiveTask(null);}}
+                aria-label="हिंदी में बदलें"
+              >
+                हिं
+              </button>
+            </div>
+            <div className="status-icons">
+              <span aria-label="Network signal">📶</span>
+              <span aria-label="Battery level">🔋</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="screen-container">
+          {tab === "home" && <Home openTask={setActiveTask} />}
+          {tab === "docs" && <Documents />}
+          {tab === "ai" && <AIScreen />}
+          {tab === "profile" && <Profile />}
+          {activeTask && (
+            <TaskDetail 
+              task={activeTask} 
+              onBack={() => setActiveTask(null)} 
+            />
+          )}
+        </div>
+
+        <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
+          {TABS(t).map((tabItem) => (
+            <button
+              key={tabItem.id}
+              className={`nav-btn ${tab === tabItem.id ? "active" : ""}`}
+              onClick={() => {
+                setActiveTask(null);
+                setTab(tabItem.id);
+              }}
+              aria-current={tab === tabItem.id ? "page" : undefined}
+            >
+              <div className="nav-icon" aria-hidden="true">{tabItem.icon}</div>
+              <div className="nav-label">{tabItem.label}</div>
+              {tab === tabItem.id && <div className="nav-dot" aria-hidden="true" />}
+            </button>
+          ))}
+        </nav>
+      </div>
+    </LangCtx.Provider>
+  );
+}
+
+// Translation object (same as before)
+const T = {
+  en: {
+    greeting: "Good morning 🙏",
+    heroCardTitle: (d) => `ITR Filing due in ${d} days`,
+    heroCardSub: "30% complete · Start to avoid penalty",
+    heroCardBtn: "Start →",
+    alertITR: "ITR Deadline: 31 Jul 2026",
+    alertITRSub: "₹5,000 late fee if missed. Start now.",
+    alertPassport: "Passport expires in 4 months",
+    alertPassportSub: "Apply 6 weeks before travel.",
+    quickActions: "Quick Actions",
+    seeAll: "See all",
+    activeTasks: "Active Tasks",
+    stepsTitle: "Steps to Complete",
+    continuBtn: "Continue →",
+    aiHelpBtn: "Get AI Help",
+    docsTitle: "Documents",
+    docsSub: (n) => `${n} documents stored securely`,
+    scanBtn: "Scan or Upload Document",
+    aiTitle: "LifeAdmin AI",
+    aiSub: "Ask anything · English या Hindi में",
+    aiLive: "Live · Powered by Claude",
+    aiPlaceholder: "Type or ask in Hindi…",
+    profileTitle: "My Profile",
+    navHome: "Home",
+    navDocs: "Docs",
+    navAI: "AI Help",
+    navProfile: "Profile",
+    doneLabel: "Done",
+    due: "Due",
+    ongoing: "Ongoing",
+    settingAddress: "Address",
+    settingLang: "Language / भाषा",
+    settingReminders: "Reminders",
+    settingPrivacy: "Privacy & Security",
+    settingHelp: "Help & Support",
+    chips: ["How to file ITR?", "Aadhaar address update", "PM Kisan status", "Ayushman card kaise banaye?"],
+    aiWelcome: "Hello! I'm your LifeAdmin AI assistant.\n\nI can help you with ITR filing, Aadhaar issues, passport applications, and govt schemes like PM Awas Yojana. Ask me anything in English or Hindi!",
+    quick: [
+      { icon:"🪪", label:"Aadhaar" }, { icon:"📊", label:"File ITR" },
+      { icon:"✈️", label:"Passport" }, { icon:"🌾", label:"Schemes" },
+      { icon:"🏥", label:"Ayushman" }, { icon:"🏠", label:"PM Awas" },
+      { icon:"📚", label:"Scholarships" }, { icon:"🚜", label:"Kisan" },
+    ],
+    tasks: [
+      { title:"ITR Filing 2025–26", tag:"Income Tax", due:"2026-07-31", pct:30, steps:[
+        { title:"PAN Verification", desc:"Verify PAN on Income Tax portal", done:true },
+        { title:"Form 16 Upload", desc:"Upload employer's Form 16", done:true },
+        { title:"Deductions (80C)", desc:"Add PPF, LIC, ELSS details", done:false },
+        { title:"Review & Submit", desc:"Cross-check and file online", done:false },
+      ]},
+      { title:"Passport Renewal", tag:"ID & Travel", due:"2026-05-01", pct:10, steps:[
+        { title:"Fill Form SP-A2", desc:"Online at passportindia.gov.in", done:true },
+        { title:"Book PSK Appointment", desc:"Nearest Passport Seva Kendra", done:false },
+        { title:"Document Submission", desc:"Aadhaar, PAN, address proof", done:false },
+        { title:"Police Verification", desc:"Initiated after submission", done:false },
+      ]},
+      { title:"Aadhaar Address Update", tag:"Aadhaar", due:"2026-04-15", pct:60, steps:[
+        { title:"Login to UIDAI", desc:"Visit myaadhaar.uidai.gov.in", done:true },
+        { title:"Upload Address Proof", desc:"Electricity bill / bank passbook", done:true },
+        { title:"OTP Verification", desc:"Registered mobile needed", done:false },
+        { title:"Await Update", desc:"Usually 30 days processing", done:false },
+      ]},
+      { title:"PM Ujjwala Yojana", tag:"Govt Scheme", due:"Ongoing", pct:0, steps:[
+        { title:"Check Eligibility", desc:"BPL household / SECC 2011 list", done:false },
+        { title:"Fill KYC Form", desc:"Visit nearest LPG distributor", done:false },
+        { title:"Submit Documents", desc:"Aadhaar, ration card, bank account", done:false },
+        { title:"Connection Issued", desc:"Free LPG connection approved", done:false },
+      ]},
+    ],
+    docs: [
+      { name:"Aadhaar Card", icon:"🪪", tag:"ID", date:"Updated Jan 2026", color:"#FFF0E6" },
+      { name:"PAN Card", icon:"🏦", tag:"TAX", date:"Linked to Aadhaar", color:"#E6F7EE" },
+      { name:"Form 16 (2025)", icon:"📄", tag:"TAX", date:"Uploaded Feb 2026", color:"#EFF6FF" },
+      { name:"Ration Card", icon:"📋", tag:"SCHEME", date:"Updated 2025", color:"#F5F3FF" },
+      { name:"Birth Certificate", icon:"📜", tag:"ID", date:"Scanned", color:"#FFF0E6" },
+      { name:"Bank Passbook", icon:"🏧", tag:"FIN", date:"SBI — Mar 2026", color:"#E6F7EE" },
+    ],
+    settings: [
+      { icon:"🪪", label:"Aadhaar Number", val:"XXXX-XXXX-4521" },
+      { icon:"📊", label:"PAN Card", val:"ABCDE1234F" },
+      { icon:"🏠", label:"Address", val:"Varanasi, UP" },
+      { icon:"📱", label:"Mobile (Linked)", val:"+91 98765XXXXX" },
+      { icon:"🌐", label:"Language / भाषा", val:"English" },
+      { icon:"🔔", label:"Reminders", val:"On" },
+      { icon:"🔒", label:"Privacy & Security", val:"›" },
+      { icon:"❓", label:"Help & Support", val:"›" },
+    ],
+    digilockerTitle: "Connect DigiLocker",
+    digilockerDesc: "Access your government documents securely from DigiLocker",
+    digilockerSecure: "Government secured digital documents",
+    digilockerInstant: "Instant access to verified documents",
+    digilockerGovt: "Official documents from government agencies",
+    connectDigiLocker: "Connect DigiLocker",
+    connecting: "Connecting...",
+    cancel: "Cancel",
+    digilockerNote: "You will be redirected to DigiLocker to authenticate. We don't store your credentials.",
+  },
+  hi: {
+    greeting: "सुप्रभात 🙏",
+    heroCardTitle: (d) => `ITR दाखिल करने में ${d} दिन बचे`,
+    heroCardSub: "30% पूरा · जुर्माने से बचने के लिए शुरू करें",
+    heroCardBtn: "शुरू करें →",
+    alertITR: "ITR की अंतिम तिथि: 31 जुलाई 2026",
+    alertITRSub: "चूकने पर ₹5,000 जुर्माना। अभी शुरू करें।",
+    alertPassport: "पासपोर्ट 4 महीने में समाप्त हो रहा है",
+    alertPassportSub: "यात्रा से 6 सप्ताह पहले आवेदन करें।",
+    quickActions: "त्वरित कार्य",
+    seeAll: "सभी देखें",
+    activeTasks: "सक्रिय कार्य",
+    stepsTitle: "पूरे करने के चरण",
+    continuBtn: "आगे बढ़ें →",
+    aiHelpBtn: "AI से मदद लें",
+    docsTitle: "दस्तावेज़",
+    docsSub: (n) => `${n} दस्तावेज़ सुरक्षित रूप से संग्रहीत`,
+    scanBtn: "दस्तावेज़ स्कैन या अपलोड करें",
+    aiTitle: "LifeAdmin AI",
+    aiSub: "कुछ भी पूछें · English या हिंदी में",
+    aiLive: "लाइव · Claude द्वारा संचालित",
+    aiPlaceholder: "हिंदी या English में टाइप करें…",
+    profileTitle: "मेरी प्रोफ़ाइल",
+    navHome: "होम",
+    navDocs: "दस्तावेज़",
+    navAI: "AI सहायक",
+    navProfile: "प्रोफ़ाइल",
+    doneLabel: "हो गया",
+    due: "अंतिम तिथि",
+    ongoing: "जारी",
+    settingAddress: "पता",
+    settingLang: "भाषा / Language",
+    settingReminders: "रिमाइंडर",
+    settingPrivacy: "गोपनीयता और सुरक्षा",
+    settingHelp: "सहायता और समर्थन",
+    chips: ["ITR कैसे भरें?", "Aadhaar पता अपडेट", "PM किसान स्थिति", "आयुष्मान कार्ड कैसे बनाएं?"],
+    aiWelcome: "नमस्ते! मैं आपका LifeAdmin AI सहायक हूँ।\n\nमैं ITR दाखिल करने, Aadhaar समस्याओं, पासपोर्ट आवेदन, और PM आवास योजना जैसी सरकारी योजनाओं में मदद कर सकता हूँ। English या हिंदी में पूछें!",
+    quick: [
+      { icon:"🪪", label:"आधार" }, { icon:"📊", label:"ITR भरें" },
+      { icon:"✈️", label:"पासपोर्ट" }, { icon:"🌾", label:"योजनाएं" },
+      { icon:"🏥", label:"आयुष्मान" }, { icon:"🏠", label:"PM आवास" },
+      { icon:"📚", label:"छात्रवृत्ति" }, { icon:"🚜", label:"किसान" },
+    ],
+    tasks: [
+      { title:"ITR दाखिल 2025–26", tag:"आयकर", due:"2026-07-31", pct:30, steps:[
+        { title:"PAN सत्यापन", desc:"आयकर पोर्टल पर PAN सत्यापित करें", done:true },
+        { title:"Form 16 अपलोड", desc:"नियोक्ता का Form 16 अपलोड करें", done:true },
+        { title:"कटौती (80C)", desc:"PPF, LIC, ELSS विवरण जोड़ें", done:false },
+        { title:"समीक्षा और जमा करें", desc:"ऑनलाइन जाँच कर दाखिल करें", done:false },
+      ]},
+      { title:"पासपोर्ट नवीनीकरण", tag:"पहचान और यात्रा", due:"2026-05-01", pct:10, steps:[
+        { title:"फॉर्म SP-A2 भरें", desc:"passportindia.gov.in पर ऑनलाइन", done:true },
+        { title:"PSK अपॉइंटमेंट", desc:"नजदीकी पासपोर्ट सेवा केंद्र", done:false },
+        { title:"दस्तावेज़ जमा करें", desc:"Aadhaar, PAN, पता प्रमाण", done:false },
+        { title:"पुलिस सत्यापन", desc:"जमा करने के बाद शुरू होगा", done:false },
+      ]},
+      { title:"Aadhaar पता अपडेट", tag:"आधार", due:"2026-04-15", pct:60, steps:[
+        { title:"UIDAI में लॉगिन करें", desc:"myaadhaar.uidai.gov.in पर जाएं", done:true },
+        { title:"पता प्रमाण अपलोड", desc:"बिजली बिल / बैंक पासबुक", done:true },
+        { title:"OTP सत्यापन", desc:"पंजीकृत मोबाइल नंबर चाहिए", done:false },
+        { title:"अपडेट की प्रतीक्षा", desc:"आमतौर पर 30 दिन लगते हैं", done:false },
+      ]},
+      { title:"PM उज्ज्वला योजना", tag:"सरकारी योजना", due:"जारी", pct:0, steps:[
+        { title:"पात्रता जाँचें", desc:"BPL परिवार / SECC 2011 सूची", done:false },
+        { title:"KYC फॉर्म भरें", desc:"नजदीकी LPG वितरक पर जाएं", done:false },
+        { title:"दस्तावेज़ जमा करें", desc:"Aadhaar, राशन कार्ड, बैंक खाता", done:false },
+        { title:"कनेक्शन जारी", desc:"मुफ्त LPG कनेक्शन स्वीकृत", done:false },
+      ]},
+    ],
+    docs: [
+      { name:"आधार कार्ड", icon:"🪪", tag:"पहचान", date:"Jan 2026 में अपडेट", color:"#FFF0E6" },
+      { name:"PAN कार्ड", icon:"🏦", tag:"कर", date:"Aadhaar से जुड़ा", color:"#E6F7EE" },
+      { name:"Form 16 (2025)", icon:"📄", tag:"कर", date:"Feb 2026 अपलोड", color:"#EFF6FF" },
+      { name:"राशन कार्ड", icon:"📋", tag:"योजना", date:"2025 में अपडेट", color:"#F5F3FF" },
+      { name:"जन्म प्रमाण पत्र", icon:"📜", tag:"पहचान", date:"स्कैन किया गया", color:"#FFF0E6" },
+      { name:"बैंक पासबुक", icon:"🏧", tag:"वित्त", date:"SBI — Mar 2026", color:"#E6F7EE" },
+    ],
+    settings: [
+      { icon:"🪪", label:"आधार नंबर", val:"XXXX-XXXX-4521" },
+      { icon:"📊", label:"PAN कार्ड", val:"ABCDE1234F" },
+      { icon:"🏠", label:"पता", val:"वाराणसी, UP" },
+      { icon:"📱", label:"मोबाइल (जुड़ा हुआ)", val:"+91 98765XXXXX" },
+      { icon:"🌐", label:"भाषा / Language", val:"हिंदी" },
+      { icon:"🔔", label:"रिमाइंडर", val:"चालू" },
+      { icon:"🔒", label:"गोपनीयता और सुरक्षा", val:"›" },
+      { icon:"❓", label:"सहायता और समर्थन", val:"›" },
+    ],
+    digilockerTitle: "DigiLocker से कनेक्ट करें",
+    digilockerDesc: "DigiLocker से अपने सरकारी दस्तावेज़ों तक सुरक्षित रूप से पहुँचें",
+    digilockerSecure: "सरकार द्वारा सुरक्षित डिजिटल दस्तावेज़",
+    digilockerInstant: "सत्यापित दस्तावेज़ों तक तुरंत पहुँच",
+    digilockerGovt: "सरकारी एजेंसियों से आधिकारिक दस्तावेज़",
+    connectDigiLocker: "DigiLocker से कनेक्ट करें",
+    connecting: "कनेक्ट हो रहा है...",
+    cancel: "रद्द करें",
+    digilockerNote: "प्रमाणित करने के लिए आपको DigiLocker पर रीडायरेक्ट किया जाएगा। हम आपके क्रेडेंशियल्स को संग्रहीत नहीं करते हैं।",
+  },
+};
