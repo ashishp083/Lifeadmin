@@ -1,0 +1,70 @@
+// src/components/TaskDetail.jsx
+import { useLang } from "../context/LangContext";
+import { T } from "../utils/translations";
+
+export default function TaskDetail({ task, onBack }) {
+  const lang = useLang();
+  const t = T[lang];
+  const done = task.steps.filter(s => s.done).length;
+
+  return (
+    <div className="sheet">
+      <div className="sheet-header">
+        <button 
+          className="back-btn" 
+          onClick={onBack}
+          aria-label={lang === "hi" ? "वापस जाएं" : "Go back"}
+        >
+          ‹
+        </button>
+        <div className="sheet-title">{task.title}</div>
+      </div>
+      
+      <div className="task-summary">
+        <div 
+          className="task-summary-content" 
+          style={{ background: task.bg }}
+        >
+          <div className="task-summary-tag">{task.tag}</div>
+          <div className="task-summary-percent">
+            {task.pct}% {lang === "hi" ? "पूर्ण" : "Complete"}
+          </div>
+          <div className="task-summary-progress">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${task.pct}%` }}
+            />
+          </div>
+          <div className="task-summary-steps">
+            {done} / {task.steps.length} {lang === "hi" ? "चरण पूरे" : "steps done"} · {t.due} {task.due}
+          </div>
+        </div>
+      </div>
+      
+      <div className="sheet-section">
+        <div className="sheet-section-title">{t.stepsTitle}</div>
+        {task.steps.map((s, i) => {
+          const state = s.done ? "done" : (i === done ? "active" : "todo");
+          return (
+            <div className="step-row" key={i}>
+              <div className={`step-num step-${state}`}>
+                {s.done ? "✓" : i + 1}
+              </div>
+              <div className="step-content">
+                <div className="step-title">{s.title}</div>
+                <div className="step-desc">{s.desc}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      
+      <div className="action-buttons">
+        <button className="big-btn">{t.continuBtn}</button>
+        <button className="big-btn big-btn-outline">
+          {t.aiHelpBtn}
+        </button>
+      </div>
+    </div>
+  );
+}
