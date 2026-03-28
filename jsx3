@@ -1,0 +1,5 @@
+// src/components/Documents.jsx
+import { useState, useEffect } from "react";
+import { useLang } from "../context/LangContext";
+import { T } from "../utils/translations";
+import DigiLockerAuth from "./DigiLockerAuth
